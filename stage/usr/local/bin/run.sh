@@ -1,12 +1,15 @@
 #!/bin/sh
 
 # stamp out nginx template
-if [ -z "$UPSTREAM" ]; then
-    export UPSTREAM="http://localhost:8080"
+if [ -z "$UPSTREAM_SERVER" ]; then
+    export UPSTREAM_SERVER="unix:/var/run/default-server.sock"
+    cp /etc/nginx/templates/default-server.conf /etc/nginx/conf.d/
 fi
-envsubst '${UPSTREAM}' \
-    < /etc/nginx/templates/default.conf \
-    > /etc/nginx/conf.d/default.conf
+if [ ! -f "/etc/nginx/conf.d/upstream-server.conf" ]; then
+    envsubst '${UPSTREAM_SERVER}' \
+        < /etc/nginx/templates/upstream-server.conf \
+        > /etc/nginx/conf.d/upstream-server.conf
+fi
 
 # start okta-nginx
 okta-nginx &
